@@ -1,0 +1,95 @@
+---
+description: Статья о различных способах установки disnake.
+keywords: [disnake, bot, guide, tutorial, install, python]
+hide_table_of_contents: true
+---
+
+# Установка disnake
+
+:::note Примечание
+
+Чтобы использовать disnake, вам сначала нужно установить [Python][python]. Как и большинство других форков
+[`discord.py`](https://discordpy.readthedocs.io/en/latest), disnake поддержкивает Python 3.8 или выше. Для
+получения полного пошагового руководства по установке Python мы предлагаем следовать
+[этой статье на Real Python](https://realpython.com/installing-python/), или
+[The Hitchhiker's Guide to Python](https://docs.python-guide.org/starting/installation/).
+
+:::
+
+Чтобы использовать disnake, вам нужно будет установить его через `pip`, который язвляется стандартным менеджером пакетов
+Python. Поскольку pip входит в стандартную установку Python 3.4 и выше, нет необходимости устанавливать его отдельно.
+
+Чтобы установить библиотеку без полной голосовой поддержки, вы можете просто выполнить следующую команду:
+
+<Tabs groupId="operating-systems">
+<TabItem value="windows" label="Windows">
+
+```
+py -3 -m pip install -U disnake
+```
+
+</TabItem>
+<TabItem value="macos" label="macOS">
+
+```
+python3 -m pip install -U disnake
+```
+
+</TabItem>
+<TabItem value="linux" label="Linux">
+
+```
+python3 -m pip install -U disnake
+```
+
+</TabItem>
+</Tabs>
+
+В противном случае, чтобы получить голосовую поддержку, вам следует выполнить следующую
+команду:
+
+<Tabs groupId="operating-systems">
+<TabItem value="windows" label="Windows">
+
+```
+py -3 -m pip install -U "disnake[voice]"
+```
+
+</TabItem>
+<TabItem value="macos" label="macOS">
+
+```
+python3 -m pip install -U "disnake[voice]"
+```
+
+</TabItem>
+<TabItem value="linux" label="Linux">
+
+```
+python3 -m pip install -U "disnake[voice]"
+```
+
+</TabItem>
+</Tabs>
+
+Чтобы установить версию для разработки, выполните следующие действия:
+
+```
+$ pip install -U git+https://github.com/DisnakeDev/disnake#egg=disnake[speed,voice]
+```
+
+:::info Информация
+
+При установке голосовой поддержки в Linux вы должны установить следующие пакеты с помощью вашего любимого пакетного
+менеджера (например, `apt`, `dnf` и т.д.) перед выполнением вышеуказанных команд:
+
+-   libffi-dev (или `libffi-devel` в некоторых системах)
+-   python-dev (например, `python3.6-dev` для Python 3.6)
+
+:::
+
+И это всё! Установив всё необходимое, вы почти готовы приступить к написанию своего бота.
+
+[python]: https://www.python.org/downloads/
+[brew]: https://brew.sh/
+[opensource-linux]: https://opensource.com/article/20/4/install-python-linux

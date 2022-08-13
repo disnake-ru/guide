@@ -1,0 +1,415 @@
+---
+description: Обширная статья об использовании эмбедов (embed) Discord, а также об их особенностях и ограничениях.
+---
+
+# Эмбеды
+
+Возможно, вы видели некоторые специальные сообщения в Discord (часто отправляемые ботами/вебхуками), которые имеют
+цветную рамку, встроенные изображения, текстовые поля и другие свойства. Эти элементы называются **Эмбедами**, и в этом
+разделе будет рассказано, как вы можете создать и отправить их с помощью своего бота. Это делается с помощью
+объекта <DocsLink reference="disnake.Embed" />.
+
+В этом разделе будут подробно рассмотрены атрибуты и методы, используемые в эмбедах. Таким образом, мы рекомендуем
+перейти к нужной вам теме через оглавление.
+
+## Предпросмотр эмбеда
+
+Вот пример того, как может выглядеть эмбед. Мы рассмотрим конструкцию эмбеда в следующей части этой статьи.
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Заголовок эмбеда"
+			url="https://disnake.dev/"
+			thumbnail="/public/disnake-logo.png"
+			image="https://i.imgur.com/KsTvw5Z.png"
+			timestamp="01/01/2077"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			slot="embeds"
+		>
+			Описание эмбеда
+			<DiscordEmbedFields slot="fields">
+				<DiscordEmbedField fieldTitle="Обычный заголовок">Обычное значение</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+			</DiscordEmbedFields>
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+Код для этого эмбеда приведен ниже.
+
+```python title="embed.py"
+import disnake
+from disnake.ext import commands
+
+# Внутри команды, прослушивателя событий и т.д.
+embed = disnake.Embed(
+    title="Заголовок эмбеда",
+    description="Описание эмбеда",
+    color=disnake.Colour.yellow(),
+    timestamp=datetime.datetime.now(),
+)
+
+embed.set_author(
+    name="Автор эмбеда",
+    url="https://disnake.dev/",
+    icon_url="https://disnake.dev/assets/disnake-logo.png",
+)
+embed.set_footer(
+    text="Футер эмбеда",
+    icon_url="https://disnake.dev/assets/disnake-logo.png",
+)
+
+embed.set_thumbnail(url="https://disnake.dev/assets/disnake-logo.png")
+embed.set_image(url="https://disnake.dev/assets/disnake-thin-banner.png")
+
+embed.add_field(name="Обычный заголовок", value="Обычное значение", inline=False)
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+
+await ctx.send(embed=embed)
+```
+
+:::note Примечание
+
+Нет строгой необходимости использовать все элементы, представленные выше. Вы можете оставить некоторые из них в
+соответствии с вашими потребностями.
+
+:::
+
+Цвет вставки (с помощью параметра `color`) принимает экземпляр <DocsLink reference="disnake.Colour" />,
+шестнадцатеричная строка или целое число.
+
+Чтобы добавить пустое поле для эмбеда, вы можете использовать `embed.add_field(name='\u200b', value='\u200b')`.
+
+## Создание эмбеда
+
+Вы можете использовать <DocsLink reference="disnake.Embed">Embed</DocsLink> для создания эмбедов и манипулирования ими.
+
+```python title="embed.py"
+embed = disnake.Embed(
+    title="Заголовок эмбеда",
+    description="Описание эмбеда",
+    colour=0xF0C43F,
+)
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed embedTitle="Заголовок эмбеда" slot="embeds">
+			Описание эмбеда
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+### Установка автора
+
+Вы можете указать автора эмбеда с помощью метода <DocsLink reference="disnake.Embed.set_author">set_author</DocsLink>.
+Обратите внимание, что этот код запускается после того, как вы определили `embed` через `embed = disnake.Embed(...)`.
+
+```python title="embed.py"
+embed.set_author(
+    name="Автор эмбеда",
+    url="https://disnake.dev/",
+    icon_url="https://disnake.dev/assets/disnake-logo.png",
+)
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Заголовок эмбеда"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			slot="embeds"
+		>
+			Описание эмбеда
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+Поскольку в этом случае мы установили URL-адрес, нажатие на "Автор эмбеда" перенаправит пользователя на сайт
+[`disnake.dev`](https://disnake.dev/).
+
+### Установка футера
+
+Вы можете указать футер эмбеда с помощью метода <DocsLink reference="disnake.Embed.set_footer">set_footer</DocsLink>.
+Обратите внимание, что этот код запускается после того, как вы определили `embed` через `embed = disnake.Embed(...)`.
+
+```python title="embed.py"
+embed.set_footer(
+    text="Футер эмбеда",
+    icon_url="https://disnake.dev/assets/disnake-logo.png",
+)
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Заголовок эмбеда"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			slot="embeds"
+		>
+			Описание эмбеда
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+### Установка миниатюры
+
+Вы можете указать миниатюру с помощью метода <DocsLink reference="disnake.Embed.set_thumbnail">set_thumbnail</DocsLink>.
+Обратите внимание, что этот код запускается после того, как вы определили `embed` через `embed = disnake.Embed(...)`.
+
+```python title="embed.py"
+embed.set_thumbnail(url="https://disnake.dev/assets/disnake-thin-banner.png")
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Embed Thumbnail"
+			thumbnail="/public/disnake-logo.png"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			timestamp="01/01/2077"
+			slot="embeds"
+		>
+			It is shown in the top-right corner of the embed. You can set this as a URL, but{' '}
+			<DiscordMarkdown>`disnake`</DiscordMarkdown> also allows you to use a locally stored file instead, using the{' '}
+			<DiscordMarkdown>`file`</DiscordMarkdown> parameter.
+			<br />
+			<br />
+			<DiscordMarkdown>`embed.set_thumbnail(file=disnake.File("asset/path.png"))`</DiscordMarkdown>
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+### Использование временных отметок
+
+Временные отметки отображаются возле футера эмбеда, указывая время, в которое было отправлен/инициирован эмбед. Это
+можно сделать с помощью параметра <DocsLink reference="disnake.Embed.timestamp">timestamp</DocsLink>
+`disnake.Embed()`. Обратите внимание, что вам нужно будет импортировать пакет [`datetime`][datetime-pypi] в ваш код.
+
+```python title="embed.py" {8}
+import datetime
+
+# Внутри команды, прослушивателя событий и т.д.
+embed = disnake.Embed(
+    title="Эмбед!",
+    description="Описание",
+    colour=0xF0C43F,
+    timestamp=datetime.datetime.now(),
+)
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Временные отметки"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			timestamp="01/01/2077"
+			slot="embeds"
+		>
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+### Добавление полей
+
+Поля эмбеда имеют два параметра - название (или заголовок) и значение внутри с помощью
+метода <DocsLink reference="disnake.Embed.add_field">add_field</DocsLink>. Также можно использовать markdown в
+обоих параметрах.
+
+```python title="embed.py"
+# Обычные поля
+embed.add_field(name="Обычный заголовок", value="Обычное значение", inline=False)
+
+# Встроенные поля
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+embed.add_field(name="Встроенный заголовок", value="Встроенное значение", inline=True)
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Заголовок эмбеда"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			timestamp="01/01/2077"
+			slot="embeds"
+		>
+			Описание эмбеда
+			<DiscordEmbedFields slot="fields">
+				<DiscordEmbedField fieldTitle="Обычный заголовок">Обычное значение</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+				<DiscordEmbedField inline="true" fieldTitle="Встроенный заголовок">
+					Встроенное значение
+				</DiscordEmbedField>
+			</DiscordEmbedFields>
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+Эти атрибуты также полностью поддерживают использование markdown, а также выделение ссылок. Вы также можете вставлять
+поля в определенную позицию с указанным индексом,
+используя <DocsLink reference="disnake.Embed.insert_field_at">embed.insert_field_at(index, ...)</DocsLink>.
+
+### Добавление изображений
+
+Это можно сделать с помощью методв <DocsLink reference="disnake.Embed.set_image">set_image</DocsLink>, который
+принимает либо ссылку, либо объект <DocsLink reference="disnake.File" />.
+
+```python title="embed.py"
+# Используя ссылку
+embed.set_image(url="https://disnake.dev/assets/disnake-thin-banner.png")
+
+# Используя локальный файл
+embed.set_image(file=disnake.File("path/to/file.png"))
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed
+			embedTitle="Изображения"
+			image="https://i.imgur.com/KsTvw5Z.png"
+			authorName="Автор эмбеда"
+			authorIcon="/public/disnake-logo.png"
+			authorUrl="https://disnake.dev/"
+			footerIcon="/public/disnake-logo.png"
+			timestamp="01/01/2077"
+			slot="embeds"
+		>
+			<span slot="footer">Футер эмбеда</span>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+## Отправка эмбеда
+
+Как только эмбед будет создан, вам также нужно отправить его в канал. Это означает, что вам нужно вызвать метод
+`send(embed=embed)` для объекта, например объекта `TextChannel` (т.е. `message.channel.send`) или объекта
+`Context` (`ctx.send`). В противном случае эмбед не будет отправлена.
+
+## Словарь в эмбед
+
+Тип данных `dict` (и, по сути, файл `json`) может быть преобразован в вложение, используя
+метод <DocsLink reference="disnake.Embed.from_dict">Embed.from_dict()</DocsLink>. Мы можем воссоздать вставку,
+сделанную в начале этой страницы, используя то же самое.
+
+```python title="embed.py"
+embed_dict = {
+    "title": "Заголовок эмбеда",
+    "description": "Описание эмбеда",
+    "color": 0xFEE75C,
+    "timestamp": datetime.datetime.now().isoformat(),
+    "author": {
+        "name": "Автор эмбеда",
+        "url": "https://disnake.dev/",
+        "icon_url": "https://disnake.dev/assets/disnake-logo.png",
+    },
+    "thumbnail": {"url": "https://disnake.dev/assets/disnake-logo.png"},
+    "fields": [
+        {"name": "Обычный заголовок", "value": "Обычное значение", "inline": "false"},
+        {"name": "Встроенный заголовок", "value": "Встроенное значение", "inline": "true"},
+        {"name": "Встроенный заголовок", "value": "Встроенное значение", "inline": "true"},
+        {"name": "Встроенный заголовок", "value": "Встроенное значение", "inline": "true"},
+    ],
+    "image": {"url": "https://disnake.dev/assets/disnake-thin-banner.png"},
+    "footer": {"text": "Футер эмбеда", "icon_url": "https://disnake.dev/assets/disnake-logo.png"},
+}
+
+await channel.send(embed=disnake.Embed.from_dict(embed_dict))
+```
+
+Это даст точно такой же результат, как и встраивание, показанное [здесь](#предпросмотр-эмбеда). Обратите внимание, что
+временная отметка, передаваемая через словарь, должна быть в формате ISO8601 (что было достигнуто здесь с помощью
+`datetime.datetime.now().isoformat()`). Вы можете узнать больше о формате вложений `dict` в
+[официальной документации Discord](https://discord.com/developers/docs/resources/channel#embed-object).
+
+## Примечания
+
+-   Для отображения полей рядом друг с другом необходимо, чтобы по крайней мере для двух последовательных полей было
+    установлено значение `inline=True`.
+-   Временная отметка автоматически настраивает часовой пояс в зависимости от устройства пользователя.
+-   Упоминания любого рода в эмбедах будут корректно отображаться только в пределах описания и значений полей эмбеда.
+-   Упоминания во вложениях не будут вызывать уведомление.
+-   Эмбеды позволяют маскировать ссылки (например, `[Guide](https://guide.disnake.dev/ 'optional hovertext')`), но
+    только в описании и значениях полей.
+
+<sup>
+	Источник: <a href="https://discordjs.guide/popular-topics/embeds.html#notes">Руководство по Discord.js</a>
+</sup>
+
+## Ограничения
+
+Есть несколько ограничений, о которых следует помнить при планировании ваших эмбедов из-за ограничений API. Вот краткий
+список ограничений:
+
+-   Заголовок эмбедаs ограничен **256 символами**.
+-   Описание эмбедаs ограничен **4096 символами**.
+-   Максимум **25 полей**.
+-   название поля ограничено **256 символами** и их значение **1024 символами**.
+-   Текст футера ограничен **2048 символами**.
+-   Имя автора ограничено **256 символами**.
+-   Сумма всех символов из всех структур эмбеда в сообщении не должна превышать **6000 символов**.
+-   **10 эмбедов** может содержать одно сообщение.
+
+<sup>
+	Источник: <a href="https://discord.com/developers/docs/resources/channel#embed-limits">документация Discord API</a>
+</sup>
+
+## Получившийся код
+
+<ResultingCode />
+
+[datetime-pypi]: https://pypi.org/project/DateTime/

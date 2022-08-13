@@ -1,0 +1,177 @@
+---
+description: Подробная статья о создании когов для вашего Discord бота.
+keywords: [disnake, bot, guide, tutorial, cogs, extensions, python]
+---
+
+# Создание когов/дополнений
+
+[**Коги**](https://docs.disnake.dev/en/latest/ext/commands/cogs.html) аналогичны модулям, которые дополняют основное
+ядро бота, тем самым расширяя его функции и возможности. Они также позволяют вам разбивать бота и упорядочивать
+коллекцию команд/событий вашего бота (что полезно, когда список команд ващего бота становится довольно большим).
+
+:::note Примечание
+
+Коги обычно используют вместе с **Дополнениями**. Вы можете прочитать больше о них
+[в документации](https://docs.disnake.dev/en/latest/ext/commands/extensions.html).
+
+:::
+
+## Создание файлов
+
+What we code here will extend on the code from [**Initial Files**](./initial-files.mdx), and thus we assume that there
+already exists a `main.py` file in your directory which initiates a `commands.Bot()` instance.
+
+```python title="main.py"
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+Далее мы создадим новый Python файл либо в том же каталоге, что и `main.py` или во вложенной папке (что рекомендуется).
+Для удобства организации мы создадим файл кога во вложенной папке `cogs` и назовём его `ping.py` - только для команды
+`ping`. Если вы строго следуете руководству, ваш каталог должен выглядеть примерно так:
+
+```
+.
+├── cogs/
+│   └── ping.py
+├── main.py
+└── secrets.env
+```
+
+## Начальный код
+
+### Наследование класса
+
+Первый шаг - создать класс в `ping.py`, который наследуется от `commands.Cog`, а так же конструктор, который принимает
+объект `bot` в качестве своего единственного аргумента и сохраняет его. Именно здесь мы будет добавлять наши команды.
+
+```python title="ping.py"
+from disnake.ext import commands
+
+
+class PingCommand(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+```
+
+:::tip Совет
+
+Мы добавили анотацию типа `bot: commands.Bot` здесь, чтобы дать IDE представление о том, какой тип данных содержит
+аргумент. Это не обязательно, но может быть полезно при разработке.
+
+:::
+
+### Регистрация команд
+
+Теперь, чтобы определить слэш команду внутри класса, мы будет использовать декоратор `commands.slash_comamnd()`. Он
+функционирует так же, как и `bot.slash_command()`, но также работает в когах.
+
+```python title="ping.py" {9,10}
+import disnake
+from disnake.ext import commands
+
+
+class PingCommand(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @commands.slash_command()
+    async def ping(self, inter: disnake.ApplicationCommandInteraction):
+        """Получить текущую задержку бота."""
+        await inter.response.send_message(f"Понг! {round(self.bot.latency * 1000)}мс")
+```
+
+Обратите внимание, что мы используем `self` в качестве первого аргумета, поскольку функция команды находится внутри
+класса.
+
+### Добавление функции `setup`
+
+Последнее, что нужно добавить a этот файл, - это функция `setup`, чтобы disnake мог загружать ког, когда он будет
+добавлен в `main.py`.
+
+```python title="ping.py" {15,16}
+import disnake
+from disnake.ext import commands
+
+
+class PingCommand(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @commands.slash_command()
+    async def ping(self, inter: disnake.ApplicationCommandInteraction):
+        """Получить текущую задержку бота."""
+        await inter.response.send_message(f"Понг! {round(self.bot.latency * 1000)}мс")
+
+
+def setup(bot: commands.Bot):
+    bot.add_cog(PingCommand(bot))
+```
+
+Этот файл кога теперь можно добавить в бота с помощью метода `bot.load_extension()` в `main.py`.
+
+```python title="main.py" {12}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+bot.load_extension("cogs.ping")  # Примечание: расширение .py указывать не нужно
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+Обратите внимание, что мы указали здесь `"cogs.ping"`, поскольку файл `ping.py` находится внутри папки `cogs`. Поэтому
+основным синтаксисом для загрузки дополнений является `bot.load_extension("<название_папки>.<название_файла>")`.
+
+:::tip Совет
+
+Для загрузки всех когов из папки `cogs` используйте метод `bot.load_extensions()`
+
+```python
+bot.load_extensions('cogs')
+```
+
+:::
+
+И это завершает использование когов в `disnake`! Теперь вы можете создать несколько кого для группировки и организации
+ваших команд/событий, а также загружать/выгружать их через ваш основной файл. Более подробную информацию о специальных
+методах когов можно найти [в документации](https://docs.disnake.dev/en/latest/ext/commands/cogs.html).
+
+## Изменения синтаксиса
+
+Коги представляют собой довольно радикальное изменение в способе написания команд и ботов, поэтому вот список, к
+которому вы можете вернуться для основного синтаксиса, используемого в когах:
+
+-   Каждый ког - это класс Python, который наследуется от <DocsLink ext="commands" reference="disnake.ext.commands.Cog">commands.Cog</DocsLink>.
+-   Декораторы для команд в когах:
+    -   Команда - <DocsLink ext="commands" reference="disnake.ext.commands.command">commands.command()</DocsLink>
+    -   Слэш команда - <DocsLink ext="commands" reference="disnake.ext.commands.slash_command">commands.slash_command()</DocsLink>
+    -   Профильные команды - <DocsLink ext="commands" reference="disnake.ext.commands.user_command">commands.user_command()</DocsLink>
+    -   Команды сообщений - <DocsLink ext="commands" reference="disnake.ext.commands.message_command">commands.message_command()</DocsLink>
+-   Для каждого слушателя событий используется декоратор  <DocsLink ext="commands" reference="disnake.ext.commands.Cog.listener">commands.Cog.listener()</DocsLink>.
+-   Коги регистрируются в боте с помощью вызова <DocsLink ext="commands" reference="disnake.ext.commands.Bot.add_cog">Bot.add_cog</DocsLink> и удаляются с помощью <DocsLink ext="commands" reference="disnake.ext.commands.Bot.remove_cog">Bot.remove_cog</DocsLink>.
+
+<sup>
+	Источник: <a href="https://docs.disnake.dev/en/latest/ext/commands/cogs.html">Документация по Disnake</a>
+</sup>
+
+Коги представляют собой довольно радикальное изменение в том, как вы пишете команды и ботов. Таким образом,
+рекомендуется ознакомиться с этим синтаксисом, поскольку код, который мы используем в этой статье, в значительной
+степени адаптирован для когов.

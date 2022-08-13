@@ -1,0 +1,290 @@
+---
+description: В этой статье подробно рассказывется о создании команд в вашем Discord боте.
+keywords: [disnake, bot, guide, tutorial, creating, commands, python]
+---
+
+# Создание команд
+
+:::info Информация
+
+Эта страница является продолжением, и используемый базовый код взят с предудущей страницы
+([Начальные файлы](./initial-files)). Код можно найти в репозитории на GitHub
+[здесь](https://github.com/DisnakeDev/guide/tree/main/code-samples/getting-started/initial-files).
+
+:::
+
+Discord также позволяет разработчикам регистрировать
+[слэш команды](https://discord.com/developers/docs/interactions/application-commands), которые предоставляют
+пользователям первоклассный способ непосредственного взаимодействия с вашим приложением. Эти слэш команды описаны в
+руководстве [здесь](/interactions/slash-commands), в разделе **Взаимодействия**.
+
+## Примечание
+
+Команды бота, которые инициируются при использовании ключевого слова вместе с указанным префиксом (например, `!` или
+`$`), известны как **команды с префиксом** (также часто называются **текстовыми командами**).
+
+:::caution Намерение на контент сообщений (Message Intent) - Привилегированное
+
+Следует отметить, что для обработки команд с префиксом требуется **намерение на контент сообщений**, что позволяет боту
+получать сдержимое и данные сообщений, отправленных пользователями. Это намерение недавно стало привилегированным, т.е.
+его необходимо включить вручную для приложения бота, и его требование в конечном итоге будет пересмотрено, если ваш бот
+находится на более чем 100 серверах.
+
+Вы можете прочитать больше о намерении на контент сообщений (Message Intent) [здесь][message-intent-article].
+
+:::
+
+Поэтому, чтобы свести к минимуму права, которые должен использовать ваш бот, мы рассмотрим командаы с префиксом в
+разделе **Популярные темы** и перейдём к основам слэш командам в этой статье; более сложные темы того же самого будут
+рассмотрены в разделе [**Взаимодействия**](/interactions).
+
+## Регистрация команд
+
+В этой статье описан самый минимум, необходимы для начала регистрации слэш команд. Ещё раз, вы можете обратиться к
+[этой странице](/interactions/slash-commands) для подробного объяснения тем, включая команды только для серверов,
+глобальные команды, опции, типы опций, автозаполнение и выбор.
+
+Теперь мы продолжим работу с базовым кодом, использованным в предыдущей статье.
+
+```python title="main.py"
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+Первый шаг - использовать декоратор `@bot.slash_command` вместе с асинхронной функцией (`async`), чтобы определить код
+для вашей слэш команды. Ниже приведёт код, демонстрирующий то же самое (сосредоточтесь на использовании `inter`, что
+является сокращением от слова `interaction` (взаимодействие)).
+
+```python title="main.py" {12-14}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+@bot.slash_command()
+async def ping(inter):
+    ...
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+`inter`, передаваемый в функцию, аналогичен контексту или `ctx`, используемому в командах с префиксом - он передаёт всю
+информацию, относящуюся к взаимодействию - например, данные о пользователе, который вызвал команду. Это также
+необходимо для ответа на использование команды.
+
+:::note Использование `ctx` против `inter`
+
+Если у вас есть опыт работы с написанием ботов с помощь [`discord.py`](https://discordpy.readthedocs.io/en/latest), вы
+должны быть знакомы с использованием `ctx` в качесте аббревиатуры для передачи контекста в функцию. Вэ том руокводстве
+в первую очередь будет использоваться `inter`, поскольку это сокращено от `interaction` (взаимодействие) и имеет
+тип <DocsLink reference="disnake.ApplicationCommandInteraction" />. Конечно, вы можете использовать предпочитаемую вами
+аббревиатуру в коде.
+
+:::
+
+### Регистрация команд на определённых серверах
+
+Обратите внимание, что серверы называются "гильдиями" (guild) в Discord API и библиотеке disnake. При выполнении
+приведённого выше кода слэш команда будет зарегистрирована глобально и будет доступна на всех серверах, на которых
+находится ваш бот.
+
+Вы также можете использовать аргумент `guild_ids`, чтобы команда была зарегистрирована только на серверах, указанных в
+списке, например, на вашем сервере разработки.
+
+```python title="main.py" {12-14}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+@bot.slash_command(guild_ids=[1234, 5678])  # ID ваших серверов указаны здесь.
+async def ping(inter):
+    ...
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+:::tip Использование `test_guilds` в `commands.Bot()`
+
+Когда у вас есть несколько команд, зарегистрированных в одних и тех же тестовых серверах, удобно определить ваши
+`guild_ids` только один раз. Поэтому вы можете использовать аргумент `test_guilds` в экземпляре `commands.Bot()` вместо
+передачи `guild_ids` в каждой команде -
+
+```python
+bot = commands.Bot(test_guilds=[1234, 5678])
+```
+
+:::
+
+Теперь, когда у вас всё готово для регистрации слэш команды, вы можете приступить к ответу на вызванную команду.
+
+## Ответ на команду
+
+Вы можете ответить на вызванную слэш команду пользователем, используя `inter.response.send_message()`. Это аналогично
+использованию `ctx.send()`, поскольку вы можете отвечать на взаимодействие с помощь встраиваний (эмбедов), файлов,
+кнопок/меню выбора или просто обычного текста.
+
+```python title="main.py" {14}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+@bot.slash_command(guild_ids=[1234, 5678])
+async def ping(inter):
+    await inter.response.send_message("Понг!")
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<div slot="interactions">
+			<DiscordInteraction profile="user" command="true">
+				ping
+			</DiscordInteraction>
+		</div>
+		Понг!
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+### Команда информации о сервере
+
+`inter.guild` ссылается на сервер, на котором была использована команда (экземпляр <DocsLink reference="disnake.Guild">Guild</DocsLink>),
+который предоставляет такие свойства, как `.name` или `.member_count`.
+
+```python title="main.py" {12-16}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+@bot.slash_command()
+async def server(inter):
+    await inter.response.send_message(
+        f"Название сервера: {inter.guild.name}\nВсего участников: {inter.guild.member_count}"
+    )
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<div slot="interactions">
+			<DiscordInteraction profile="user" command="true">
+				server
+			</DiscordInteraction>
+		</div>
+		Название сервера: Руководство Disnake
+		<br />
+		Всего участников: 2
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+:::tip Совет
+
+Обратитесь к документации по классу <DocsLink reference="disnake.Guild">Guild</DocsLink> для получения списка всех
+доступных свойств и методов.
+
+:::
+
+Вы также можете отобразить дату создания сервере или уровень проверки сервера. Вы бы сделали это таким же образом -
+используйте `inter.guild.created_at` или `inter.guild.verification_level` соответственно.
+
+### Команда информации о пользователе
+
+`inter.author` ссылается на пользователя, который использовал команду (в ЛС - экземпляр <DocsLink reference="disnake.User">User</DocsLink>
+или <DocsLink reference="disnake.Member">Member</DocsLink> на сервере), который предоставляет такие свойства, как
+`.name` или `id`. (Использование `inter.author` в строке даст полный тег пользователя.)
+
+```python title="main.py" {12-14}
+import disnake
+from disnake.ext import commands
+
+bot = commands.Bot()
+
+
+@bot.event
+async def on_ready():
+    print("Бот готов!")
+
+
+@bot.slash_command()
+async def user(inter):
+    await inter.response.send_message(f"Ваш тег: {inter.author}\nВаш ID: {inter.author.id}")
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<div slot="interactions">
+			<DiscordInteraction profile="user" command="true">
+				server
+			</DiscordInteraction>
+		</div>
+		Ваш тег: Dellyis#6984
+		<br />
+		Ваш ID: 465853102914928640
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+:::tip Совет
+
+Обратитесь к документации классов <DocsLink reference="disnake.User" /> и <DocsLink reference="disnake.Member" />
+для получения списка всех доступных свойств и методов.
+
+:::
+
+И это всё!
+
+## Получившийся код
+
+<ResultingCode />
+
+[message-intent-article]: https://support-dev.discord.com/hc/en-us/articles/4404772028055

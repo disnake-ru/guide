@@ -1,0 +1,107 @@
+---
+description: Список часто задаваемых вопросов, касающихся модулей "commands", "tasks" и "ui".
+keywords: [disnake, bot, guide, tutorial, python, extensions]
+---
+
+# Дополнения
+
+Вопросы, касающиеся `disnake.ext.commands`, `disnake.ext.tasks` и `disnake.ui`, относятся к этому разделу.
+
+:::note Примечание
+
+Это содержание было взято непосредственно из [документации](https://docs.disnake.dev/en/latest/faq.html), и наследуется
+от `discord.py `. Скорее всего, в будущем он будет переписан.
+
+:::
+
+### Почему событие `on_message` делает мои текстовые команды не рабочими?
+
+Создание события `on_message` запрещает выполнение любых команд. Чтобы исправить это, добавьте строку
+`bot.process_commands(message)` в конце вашего `on_message`. Например:
+
+```python {5}
+@bot.event
+async def on_message(message):
+    # Выполняйте здесь свои вещи
+
+    await bot.process_commands(message)
+```
+
+В качестве альтернативы вы можете поместить свою логику `on_message` в **прослушиватель**. В этой настройке вы не
+должны вручную вызывать `bot.process_commands()`. Это также позволяет вам выполнять несколько действий асинхронно в
+ответ на сообщение. Пример:
+
+```python {1}
+@bot.listen("on_message")
+async def whatever_you_want_to_call_it(message):
+    await do_stuff_here()
+    # Не обрабатывайте здесь команды
+```
+
+### Почему мои аргументы требуют кавычек?
+
+В простой команде, определенной как:
+
+```python
+@bot.command()
+async def echo(ctx, message: str):
+    await ctx.send(message)
+```
+
+Вызов его через `?echo a b c` приведет только к получению первого аргумента и игнорированию остальных. Чтобы исправить
+это, вы должны либо вызвать его через `?echo "a b c"`, либо изменить сигнатуру, чтобы иметь поведение на "consumerest".
+Пример:
+
+```python {2}
+@bot.command()
+async def echo(ctx, *, message: str):
+    await ctx.send(message)
+```
+
+Это позволит вам использовать `?echo a b c` без необходимости использования кавычек.
+
+### Как мне получить исходное `message`?
+
+Объект <DocsLink ext="commands" reference="disnake.ext.commands.Context" /> содержит
+атрибут <DocsLink ext="commands" reference="disnake.ext.commands.Context.message">message</DocsLink> дял получения
+исходного сообщения.
+
+Пример:
+
+```python
+@bot.command()
+async def length(ctx):
+    await ctx.send(f"Длина вашего сообщения - {len(ctx.message.content)} символов.")
+```
+
+### Как мне создать текстовую подкоманду?
+
+Используйте декоратор <DocsLink ext="commands" reference="disnake.ext.commands.group">group()</DocsLink>. Он
+преобразует команду в <DocsLink ext="commands" reference="disnake.ext.commands.Group" />, который позволит вам
+добавлять команды в эту группу, работающие как "подкоманды". Эти группы также могут быть произвольно вложены.
+
+Пример:
+
+```python {1,7}
+@bot.group()
+async def git(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Вызвана недопустимая команда git...")
+
+
+@git.command()
+async def push(ctx, remote: str, branch: str):
+    await ctx.send(f"Фиксирование в {remote} {branch}.")
+```
+
+Это может быть вызвано как `?git push origin master`.
+
+### Какие компоненты я могу использовать с модальными окнами?
+
+Единственным компонентом, который в настоящее время можно использовать с модальными окнами,
+является <DocsLink reference="disnake.ui.TextInput">TextInput</DocsLink>. На данный момент API не имеет интеграции
+для каких-либо других входных данных.
+
+### Модальные окна поддерживают автозаполнение?
+
+Модальные окна (или текстовый ввод) не поддерживают автозаполнение. Это ограничение Discord.

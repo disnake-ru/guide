@@ -1,0 +1,43 @@
+# Обработка ошибок
+
+:::note Примечание
+
+Это содержание было взято непосредственно из
+[документации](https://docs.disnake.dev/en/latest/ext/commands/commands.html#error-handling), и унаследовано от
+`discord.py`. Скорее всего, в будущем он будет переписан.
+
+:::
+
+Когда наши команды не будут выполнены, мы по умолчанию получим "шумную" ошибку в `stderr` вашей консоли, которая
+сообщает нам, что произошла ошибка, которая была молча проигнорирована.
+
+Чтобы обрабатывать наши ошибки, мы должны использовать нечто, называемое обработчиком ошибок. Существует глобальный
+обработчик ошибок,
+называемый <DocsLink ext="commands" reference="disnake.disnake.ext.commands.on_command_error">on_command_error()</DocsLink>,
+который работает как любое другое событие
+в <DocsLink ext="commands" reference="event-reference">Event Reference</DocsLink>. Этот глобальный обработчик ошибок
+вызывается для каждой достигнутой ошибки.
+
+Однако в большинстве случаев мы хотим обработать ошибку, локальную для самой команды. К счастью, команды поставляются
+с локальными обработчиками ошибок, которые позволяют нам делать именно это. Сначала мы оформляем функцию обработчика
+ошибок с помощью <DocsLink ext="commands" reference="disnake.ext.commands.Command.error">Command.error()</DocsLink>:
+
+```python
+@bot.command()
+async def info(ctx, *, member: disnake.Member):
+    """Сообщает вам некоторую информацию об участнике."""
+    msg = f"{member} присоединился {member.joined_at} и имеет {len(member.roles)} ролей."
+    await ctx.send(msg)
+
+
+@info.error
+async def info_error(ctx, error):
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("Я не смог найти этого участника...")
+```
+
+Первым параметром обработчика ошибок ссылается
+на <DocsLink ext="commands" reference="disnake.ext.commands.Context">Context</DocsLink>, в то время как второе -
+исключение является производным
+от <DocsLink ext="commands" reference="disnake.ext.commands.CommandError">CommandError</DocsLink>. Список ошибок
+находится на странице документации <DocsLink ext="commands" reference="ext-commands-api-errors">Исключения</DocsLink>.

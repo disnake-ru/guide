@@ -1,0 +1,315 @@
+---
+description: Модальные окна являются встроенными всплывающими окна, которые могут запрашивать у пользователя ввод текста.
+keywords: [disnake, bot, guide, tutorial, modals, text inputs, python]
+---
+
+# Модальные окна
+
+Модальные окна - это то, как вы можете запрашивать у пользователей дополнительные подробные данные. Они действуют как
+встроенные в клиент всплывающие окна и работают в паре с интерактивными компонентами, называемыми
+[текстовыми полями](https://discord.com/developers/docs/interactions/message-components#text-inputs). Эти входные
+данные могут иметь различные форматы для приема информации от пользователя по запросу и использования обратного вызова
+для обработки этой информации.
+
+В этом разделе подробно рассказывается об использовании модальных окон с другими интерактивными компонентами и
+реагировании на взаимодействие с ними.
+
+## Предпросмотр модального окна
+
+Вот пример того, как может выглядеть модальное окно. Мы рассмотрим его построение в следующей части этой статьи.
+
+<br />
+<p align="center">
+	<img src={require('./images/modals-preview.png').default} alt="Modal preview" width="60%" />
+</p>
+<br />
+
+Как только пользователь введет информацию в мадольное окно, бот получит эти данные. В качестве примера эта информация
+была представлена во вставке ниже.
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<DiscordEmbed embedTitle="Создание тега" slot="embeds">
+			<DiscordEmbedFields slot="fields">
+				<DiscordEmbedField fieldTitle="Название">Это название тега.</DiscordEmbedField>
+				<DiscordEmbedField fieldTitle="Описание">
+					Это описание тега. Здесь может быть до 4000 символов.
+				</DiscordEmbedField>
+			</DiscordEmbedFields>
+		</DiscordEmbed>
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+Это было сделано с помощью следующего кода.
+
+```python title="modals.py"
+import disnake
+from disnake.ext import commands
+from disnake import TextInputStyle
+
+# Наследуем модальное окно
+class MyModal(disnake.ui.Modal):
+    def __init__(self):
+        # Детали модального окна и его компонентов
+        components = [
+            disnake.ui.TextInput(
+                label="Name",
+                placeholder="Foo Tag",
+                custom_id="название",
+                style=TextInputStyle.short,
+                max_length=50,
+            ),
+            disnake.ui.TextInput(
+                label="Description",
+                placeholder="Lorem ipsum dolor sit amet.",
+                custom_id="описание",
+                style=TextInputStyle.paragraph,
+            ),
+        ]
+        super().__init__(
+            title="Create Tag",
+            custom_id="create_tag",
+            components=components,
+        )
+
+    # Обработка ответа, после отправки модального окна
+    async def callback(self, inter: disnake.ModalInteraction):
+        embed = disnake.Embed(title="Создание тега")
+        for key, value in inter.text_values.items():
+            embed.add_field(
+                name=key.capitalize(),
+                value=value[:1024],
+                inline=False,
+            )
+        await inter.response.send_message(embed=embed)
+
+
+bot = commands.Bot(command_prefix="!")
+
+
+@bot.slash_command()
+async def tags(inter: disnake.AppCmdInter):
+    """Отправляет модальное окно для создания тега"""
+    await inter.response.send_modal(modal=MyModal())
+
+
+bot.run("YOUR_BOT_TOKEN")
+```
+
+Реализацию этой команды с использованием интерфейса более низкого уровня можно найти
+[здесь](https://github.com/DisnakeDev/guide/tree/main/code-samples/interactions/modals/create-tag-low.py).
+
+## Создание модального окна
+
+Модальное окно может быть создано и отправлено двумя разными методами, как и другие компоненты сообщений:
+
+-   Наследование класса от <DocsLink reference="disnake.ui.Modal">disnake.ui.Modal</DocsLink> для определения
+    компонентов и отправка его через параметр `modal`
+    в <DocsLink reference="disnake.InteractionResponse.send_modal">interaction.send_modal</DocsLink> (как это сделано
+    в примере выше).
+-   Определение атрибутов и компонентов модального окна
+    внутри <DocsLink reference="disnake.InteractionResponse.send_modal">interaction.send_modal</DocsLink>. Это
+    считается реализацией модальных окон "более низкого уровня" - мы будем использовать тот же термин для обозначения
+    этого в этой разделе.
+
+Объект <DocsLink reference="disnake.ui.Modal">disnake.ui.Modal</DocsLink> имеет следующие атрибуты:
+
+-   `title` - Заголовок модального окна.
+-   `custom_id` - ID, указанный для модального окна. К нему можно получить доступ
+    через <DocsLink reference="disnake.ModalInteraction" />.
+-   `timeout` - Время (в секундах), по истечению которого модальное окно будет удалено из кэша. По умолчанию -
+    **600 секунд**.
+-   `components` - Список компонентом, которые будут отображаться в модальном окне. Максимум **5 компонентов**.
+
+:::caution Помните
+
+Модальные окна без таймаутов не поддерживаются. При закрытии пользователем модального окна никаких событий не
+отправляется, и, следовательно, модальное окно не будет удалено из кэша без таймаута.
+
+:::
+
+Эти атрибуты можно использовать при создании модального окна следующим образом.
+
+```python title="modals.py" {4-9}
+# Наследуем модальное окно.
+class MyModal(disnake.ui.Modal):
+    def __init__(self):
+        super().__init__(
+            title="Modal Title",
+            custom_id="modal_id",
+            timeout=300,
+            components=[...],
+        )
+
+
+# Используем низко уровневый интерфейс. (внутри функции)
+await inter.response.send_modal(
+    title="Modal Title",
+    custom_id="modal_id",
+    components=[...],
+)
+```
+
+:::note Примечание
+
+Рекомендуется псевдослучайно присвоить модальному окну `custom_id`, сохранив в нем ID взаимодействия. Причина в том,
+что пользователь может закрыть модальное окно, не вызывая события, и снова открыть его с помощью той же команды. В
+таких случаях `wait_for` для старого модального по-прежнему будет активным, что возобновит выполнение обеих команд.
+
+В низко уровневом интерфейсе вы можете реализовать это следующим образом:
+
+```diff title="modals.py"
+- custom_id="create_tag_low",
++ custom_id=f"create_tag_low-{inter.id}",
+
+% в wait_for
+- check=lambda i: i.custom_id == "create_tag_low" and i.author.id == inter.author.id,
++ check=lambda i: i.custom_id == f"create_tag_low-{inter.id}",
+```
+
+:::
+
+## Компоненты текстового ввода (`TextInput`)
+
+`TextInput` является самостоятельным компонентом, таким как кнопки и меню выбора. Он отвечает за получение
+пользовательского ввода в виде текста и не может использоваться вме модальных окон. Он имеет следующие атрибуты:
+
+-   `label` - Название поля текстового ввода.
+-   `custom_id` - ID поля текстового ввода.
+-   `style` - Использует один из стилей <DocsLink reference="disnake.TextInputStyle" /> для компонента. По
+    умолчанию <DocsLink reference="disnake.TextInputStyle.short">short</DocsLink>.
+-   `placeholder` - Заполнитель, который отображается, если ничего не введено.
+-   `value` - Предварительно заполненное значение для ввода текста (максимальная длина - `max_length`).
+-   `required` - Обязательно ли заполнение текста. По умолчанию - `True`.
+-   `min_length` и `max_length` - Устанавливают минимальную и максимальную длину ввода соответственно.
+
+Эти атрибуты можно использовать для каждого компонента `TextInput` следующим образом.
+
+```python title="textinput.py"
+disnake.ui.TextInput(
+    label="Name",
+    placeholder="Foo Tag",
+    custom_id="name",
+    style=TextInputStyle.short,
+    max_length=50,
+)
+```
+
+<DocsLink reference="disnake.TextInputStyle" /> имеет 2 стиля, которые имеют множество синонимов:
+
+-   `short` - Представляет однострочный компонент ввода. Также называется `single_line`.
+-   `long` - Представляет многострочный компонент ввода. Также называется `multi_line` или `paragraph`.
+
+## Методы получения ответа модальных окон
+
+### <DocsLink reference="disnake.ui.Modal.callback">`callback()`</DocsLink>
+
+Он ссылается на ответ, связанный с модальными окнами и возвращает
+объект <DocsLink reference="disnake.ModalInteraction" />, содержащий значения, введённые пользователем. Он наследуется,
+позволяя разработчику определять действие, выполняемое с полученным ответом из модального окна.
+
+```python title="modals.py" {5,6}
+class MyModal(disnake.ui.Modal):
+    def __init__(self):
+        super().__init__(...)
+
+    async def callback(self, inter: disnake.ModalInteraction):
+        await inter.response.send_message("Пользовательский ввод получен!")
+```
+
+Если вы используете интерфейс низкого уровня для отправки модальных окон, вам придется использовать
+событие/прослушиватель для проверки ID пользователя и ответа на взаимодействие. Для этой цели существует
+событие <DocsLink reference="disnake.on_modal_submit" />.
+
+```python title="modals.py" {10-14}
+@bot.slash_command()
+async def tags(inter: disnake.ApplicationCommandInteraction):
+    ...
+    await inter.response.send_modal(..., custom_id="modal_custom_id")
+
+
+...
+
+
+@bot.event()
+async def on_modal_submit(inter: disnake.ModalInteraction):
+
+    if inter.custom_id == "modal_custom_id":
+        await do_stuff_here()
+```
+
+В качетсве альтернатиы вы можете
+использовать <DocsLink ext="commands" reference="disnake.ext.commands.Bot.wait_for">bot.wait_for()</DocsLink> для этой
+цели внутри команды.
+
+```python title="modals.py" {}
+@bot.slash_command()
+async def tags(inter: disnake.ApplicationCommandInteraction):
+    ...
+    await inter.response.send_modal(..., custom_id="modal_custom_id")
+
+    modal_inter: disnake.ModalInteraction = await bot.wait_for(
+        "modal_submit",
+        check=lambda i: i.custom_id == "modal_custom_id" and i.author.id == inter.author.id,
+        timeout=300,
+    )
+```
+
+### <DocsLink reference="disnake.ui.Modal.on_error">`on_error()`</DocsLink>
+
+Выполняется, когда отправлка модального окна вызывает ошибку. Он возвращает ошибку, а также
+объект <DocsLink reference="disnake.ModalInteraction" />, который может использоваться для ответа пользователю.
+Реализация по умолчанию выводит ошибку в `sdterr`.
+
+````python title="modals.py" {5,6}
+class MyModal(disnake.ui.Modal):
+    def __init__(self):
+        super().__init__(...)
+
+    async def on_error(self, error: Exception, inter: disnake.ModalInteraction):
+        await inter.response.send_message(f"Произошла ошибка!\n```{error}```")
+````
+
+### <DocsLink reference="disnake.ui.Modal.on_timeout">`on_timeout()`</DocsLink>
+
+Вызывается, когда пользователь не отвечает до указанного таймаута; объект модального окна удаляется из кэша без
+выполнения взаимодействия.
+
+:::note Примечание
+Ни один объект взаимодействия не передается
+методу <DocsLink reference="disnake.ui.Modal.on_timeout">on_timeout()</DocsLink>. Он должен использоваться
+исключительно для внутренних функций.
+
+:::
+
+## Примечания
+
+-   Компонет <DocsLink reference="disnake.ui.TextInput">TextInput</DocsLink> - единственный компонент, который может
+    использоваться в модальных окнах. Кнопки и меню выбора не могут использоваться внутри модального окна.
+-   Вы можете добавлять компоненты в объект <DocsLink reference="disnake.ui.Modal">disnake.ui.Modal</DocsLink>,
+    используя метод <DocsLink reference="disnake.ui.Modal.append_component">append_component()</DocsLink>. Чтобы
+    напрямую добавлять компоненты текстового ввода,
+    используйте <DocsLink reference="disnake.ui.Modal.add_text_input">add_text_input()</DocsLink>.
+-   Если стиль компонента текстового ввода не указан, используйтеся `short`.
+-   По умолчанию все компоненты <DocsLink reference="disnake.ui.TextInput">TextInput</DocsLink> обязательны к заполнению.
+
+## Лимиты
+
+Существует несколько ограничений, о которых следует помнить при использовании моделей из-за ограничений API. Вот
+краткий список ограничений:
+
+-   Модальное окно может иметь до **5 компонентов**.
+-   `title` модального окна имеет максимальную длину в **45 символов**.
+-   `label` текстового поля имеет максимальную длину в **45 символов**.
+-   `placeholder` текстового поля ограничен **100 символами**.
+-   `custom_id` модального окна и текстового поля ограничен **100 символами**.
+-   Заранее заполненное `value` текстового поля имеет максимальную длину **4000 символов** (может быть изменено
+    разработчиком).
+-   Минимальное и максимальное значения для текстового поля могут быть установлены в диапазоне **0-4000 символов** и
+    **1-4000 символов** соответственно.
+
+## Получившийся код
+
+<ResultingCode />

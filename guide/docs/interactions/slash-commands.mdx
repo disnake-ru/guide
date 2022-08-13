@@ -1,0 +1,218 @@
+---
+description: В этом разделе подробно рассказано о создании, типах и обработке слэш командах.
+---
+
+# Слэш команды
+
+**Слэш команды** - это один из типов взаимодействий, интегрированных с клиентом, которые может создать бот. В отличие
+от команд с префиксом, они не требуют намерения на контент сообщения.
+
+В этом разделе подробно рассказано о создании, типах и обработке слэш командах с помощью `disnake`.
+
+:::note Примечание
+
+Бот должен быть добавлен в разрешением `applications.commands`, чтобы создавать слэш команды на сервере. Мы рекомендуем
+добавить это разрешение к приглашениям вашего бота.
+
+:::
+
+## Определение слэш команд
+
+Для создания слэш команд используйте
+декоратор <DocsLink ext="commands" reference="disnake.ext.commands.Bot.slash_command">@bot.slash_command</DocsLink>.
+
+```python
+@bot.slash_command(
+    name="ping",
+    description="Возращает задержку бота",
+)
+async def ping(inter: disnake.ApplicationCommandInteraction):
+    ...
+```
+
+<br />
+<DiscordMessages>
+	<DiscordMessage profile="bot">
+		<div slot="interactions">
+			<DiscordInteraction profile="user" command="true">
+				ping
+			</DiscordInteraction>
+		</div>
+		Понг!
+	</DiscordMessage>
+</DiscordMessages>
+<br />
+
+Если используется ког, используйте
+декоратор <DocsLink ext="commands" reference="disnake.ext.commands.slash_command">@commands.slash_command</DocsLink>.
+
+```python
+class Meta(commands.Cog):
+    @commands.slash_command(
+        name="ping",
+        description="Возращает задержку бота",
+    )
+    async def ping(self, inter: disnake.ApplicationCommandInteraction):
+        ...
+```
+
+### Параметры
+
+В то время как некоторые команды могут существовать без аргументов, большинство команд должны принимать их, чтобы быть
+полезными. Чтобы определить параметр, это так же просто, как определить аргумент для обычной команды.
+
+Вот пример команды с одним целочисленным параметром (без описания):
+
+```python
+@bot.slash_command(description="Увеличивает число в 7 раз")
+async def multiply(inter, number: int):
+    await inter.response.send_message(number * 7)
+```
+
+Чтобы сделать параметр опциональным, укажите стандартное значение аргументу.
+
+```python
+@bot.slash_command(description="Увеличивает число в указанное количество раз")
+async def multiply(inter, number: int, multiplier: int = 7):
+    await inter.response.send_message(number * multiplier)
+```
+
+### Подкоманды
+
+<!----TODO---->
+
+## Регистрация команд
+
+В отличие от команд с префиксом, слэш команды должны быть сначала зарегистрированы в Discord. В противном случае они
+не появятся, если вы нажмете "/". По умолчанию библиотека автоматически регистрирует и обновляет ваши слэш команды.
+Это происходит при запуске бота или при выгрузке или перезагрузке одного или нескольких когов.
+
+:::note Примечание
+
+Библиотека не делает ненужных запросов API во время этого процесса. Если зарегистрированные команды совпадают с
+командами в вашем коде, запросы API не выполняются. В противном случае выполняется только один запрос на массовую
+перезапись.
+
+:::
+
+Если вы хотите отключить автоматическую регистрацию, установите параметр `sync_commands` в экземпляре `commands.Bot`
+на `False`. Если вы хотите увидеть, как именно изменяется список зарегистрированных команд, установите параметр
+`sync_commands_debug` на `True`.
+
+```python
+bot = commands.Bot("!", sync_commands_debug=True)
+```
+
+Он выведет, какие команды были добавлены, отредактированы, удалены или нетронуты. Это также зависит от вашего уровня
+ведения логирования.
+
+### Глобальные команды
+
+Глобальные слэш команды видны везде, включая личные сообщения с ботом. Если вы не укажете параметр `test_guilds` в
+`commands.Bot`, все ваши слэш команды по умолчанию являются глобальными.
+
+Глобальные команды сразу видны и доступны для использования на большинстве устройств.
+
+### Серверные команды
+
+Если вы укажете параметр `test_guilds` в `commands.Bot`, все слэш команды в вашем коде больше не будут являються
+глобальными. Следующий код зарегистрирует все слэш команды только на двух серверах:
+
+```python
+bot = commands.Bot("!", test_guilds=[123456789, 987654321])  # ID серверов
+```
+
+Если вы хотите сохранить некоторые из ваших команд с косой чертой глобальными, а некоторые сделать локальными,
+укажите параметр `guild_ids` в декораторе `@bot.slash_command()`:
+
+```python
+bot = commands.Bot("!")
+
+
+@bot.slash_command()
+async def global_command(inter):
+    """Эта команда видна везде"""
+    ...
+
+
+@bot.slash_command(guild_ids=[123456789])
+async def local_command(inter):
+    """Эта команда видна только на одном сервере"""
+    ...
+```
+
+## Ответ на команды
+
+### Отправка ответа
+
+Атрибут <DocsLink reference="disnake.Interaction.response">`response`</DocsLink> ссылается
+на экземпляр <DocsLink reference="disnake.InteractionResponse">InteractionResponse</DocsLink>, который имеет 4 способа
+ответа на `ApplicationCommandInteraction`. Ответ может <b>быть выполнен только один раз</b>. Если вы хотите отправлять
+повторные сообщения, рассмотрите возможность
+использования <DocsLink reference="disnake.Interaction.followup">followup</DocsLink> вместо вебхука.
+
+:::warning Предупреждение
+
+Ответ может быть использован только **один раз**. После получения ответа **больше никаких ответов быть не может.**
+Смотрите объект [followup](#последующие-действия) для отправки сообщений после ответа.
+
+:::
+
+1. <DocsLink reference="disnake.InteractionResponse.send_message">send_message</DocsLink> - Отправляет ответное сообщение
+2. <DocsLink reference="disnake.InteractionResponse.edit_message">edit_message</DocsLink> - Редактирует оригинальное сообщение, вы не можете использовать это в командах приложения, потому что во время ответа нет сообщений.
+3. <DocsLink reference="disnake.InteractionResponse.defer">defer</DocsLink> - Откладывает взаимодействие
+4. <DocsLink reference="disnake.InteractionResponse.send_modal">send_modal</DocsLink> - отправляет <DocsLink reference="disnake.ui.Modal">
+	Modal
+   </DocsLink> (модальное окно).
+
+Кроме того, существует один метод, который не дает ответа:
+
+5. <DocsLink reference="disnake.InteractionResponse.is_done">is_done</DocsLink> - Указывает, был ли выполнен ответ на взаимодействие.
+
+:::note Примечание
+
+Если вы собираетесь запускать длительные процессы (более 3 секунд) во время ответа, вы должны сначала отложить
+взаимодействие. Затем, когда ваш ответ будет готов, вы можете отредактировать сообщение,
+используя <DocsLink reference="disnake.InteractionResponse.edit_original_message">edit_original_message</DocsLink>.
+
+:::
+
+```python title="example.py"
+@bot.slash_command()
+async def ping(inter: ApplicationCommandInteraction):
+    await inter.response.send_message("Понг!")
+
+
+@bot.slash_command()
+async def defer(inter: ApplicationCommandInteraction):
+    await inter.response.defer()
+    await asyncio.sleep(10)
+    await inter.edit_original_message(content="Ожидание закончилось, мои товарищи!")
+```
+
+### Последующие действия
+
+Последующие действия - это способ отправить сообщение после ответа. Существует два важных ограничения в отношении
+того, когда можно использовать последующее наблюдение:
+
+-   на взаимодействие должен быть дан ответ в течение первых 3 секунд (см. [Отправка ответа](#отправка-ответа)).
+-   срок действия взаимодействия не должен быть истек. Проверка того, истек ли срок действия взаимодействия, может
+    быть выполнена с помощью <DocsLink reference="disnake.ApplicationCommandInteraction.is_expired">ApplicationCommandInteraction.is_expired</DocsLink>.
+
+По своей сути, последующие действия - это просто экземпляр <DocsLink reference="disnake.Webhook">Webhook</DocsLink>.
+В этом нет ничего особенного, за исключением того, что параметр `wait` обрабатывается так, как если бы он всегда имел
+значение `True`.
+
+Одним из возможных способов последующего использования может быть отправка инструкций, которые будут видны, если
+модальное сообщение не отправлено.
+
+```python
+@bot.slash_command()
+async def confirm(inter: ApplicationCommandInteraction):
+    await inter.response.send_modal(
+        title="Подтверждение",
+        custom_id="confirm-or-deny",
+        components=[disnake.ui.TextInput(label="подтвердить?", custom_id="confirm")],
+    )
+    await inter.followup.send(content="Пожалуйста, не закрывайте модальное окно!", ephemeral=True)
+```

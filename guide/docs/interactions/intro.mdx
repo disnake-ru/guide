@@ -1,0 +1,95 @@
+---
+slug: /interactions
+hide_table_of_contents: true
+description: В этом разделе рассматриваются команды приложения и компоненты сообщений.
+---
+
+# Взаимодействия
+
+**Взаимодействиями** здесь являются интегрированные элементы, которые может может создавать бот, предоставляя
+пользователям возможность напрямую взаимодействовать с вашим приложением. В настоящее время взаимодействия можно
+разделить на три категории:
+
+<div class="container">
+	<div class="row">
+		<div class="col padding-vert--md">
+			<div class="card">
+				<div class="card__image">
+					<a href="/interactions/slash-commands">
+						<img
+							src={require('./images/slash-commands-intro.png').default}
+							alt="Slash Commands Intro Image"
+						/>
+					</a>
+				</div>
+				<div class="card__body">
+					<a href="/interactions/slash-commands">
+						<h4>Слэш команды</h4>
+					</a>
+					<small>
+						К ним можно получить доступ через поле ввода сообщения, и они возвращают значения, введённые
+						пользователем с помощью команды.
+					</small>
+				</div>
+			</div>
+		</div>
+		<br />
+		<div class="col padding-vert--md">
+			<div class="card">
+				<div class="card__image">
+					<a href="/interactions/user-message-commands">
+						<img
+							src={require('./images/user-message-commands-intro.png').default}
+							alt="Slash Commands Intro Image"
+						/>
+					</a>
+				</div>
+				<div class="card__body">
+					<a href="/interactions/user-message-commands">
+						<h4>Команды профилей/сообщений</h4>
+					</a>
+					<small>
+						Они доступны в разделе <b>Приложения</b> в контекстных меню пользователя/сообщения, отвечая
+						разрешённым пользователем или сообщением, в отношении которого была использована команда.
+					</small>
+				</div>
+			</div>
+		</div>
+		<br />
+		<div class="col padding-vert--md">
+			<div class="card">
+				<div class="card__image">
+					<a href="/interactions/message-components">
+						<img
+							src={require('./images/message-components-intro.png').default}
+							alt="Slash Commands Intro Image"
+						/>
+					</a>
+				</div>
+				<div class="card__body">
+					<a href="/interactions/message-components">
+						<h4>Компоненты сообщений</h4>
+					</a>
+					<small>
+						Они относятся к кнопкам и меню выбора, которые могут быть добавлены к сообщениям, которые
+						отправил ваш бот.
+					</small>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<br />
+
+:::note Взаимодействия и пользователи бота
+
+Взаимодействия - это, по-сути, вебхуки под капотом (и для ответа на взаимодействия не требуется токен бота). Таким
+образом, у вас может быть приложение только для взаимодействия, доступ к которому могут получить пользователи на
+сервере **без присутствия аккаунта бота**.
+
+Поскольку `disnake` в первую очередь ориентирован на использование событй шлюза, вам всё равно потребуется аккаунта
+бота. Вы можете проверить другие библиотеки, такие как [`hikari`](https://www.hikari-py.dev/) для использования этой
+функции.
+
+:::

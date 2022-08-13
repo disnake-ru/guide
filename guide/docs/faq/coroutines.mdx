@@ -1,0 +1,75 @@
+---
+description: Список часто задаваемых вопросов о том, как работают асинхронные функции.
+keywords: [disnake, bot, guide, tutorial, python, coroutines]
+---
+
+# Короутайны (coroutine)
+
+Вопросы, касающиеся короутайнов (coroutine) и asyncio, относятся к этому разделу.
+
+:::note Примечание
+
+Это содержание было взято непосредственно из [документации](https://docs.disnake.dev/en/latest/faq.html), и унаследованный от `discord.py `. Скорее всего, в будущем он будет переписан.
+
+:::
+
+### Что такое coroutine?
+
+[Сoroutine](https://docs.python.org/3/library/asyncio-task.html#coroutine) это функция, которая должна быть вызвана с
+помощью `await` или `yield from`. Когда Python сталкивается с `await`, он останавливает выполнение функции в этот
+момент и работает над другими вещами, пока не вернется к этой точке и не завершит свою работу. Это позволяет вашей
+программе выполнять несколько задач одновременно без использования потоков или сложной многопроцессорной обработки.
+
+### Где я могу использовать `await`?
+
+Вы можете использовать `await` только в `async def` функциях и нигде больше.
+
+### Что означает "blocking"?
+
+В асинхронном программировании блокирующий вызов - это, по сути, все части функции, которые не являются `await`. Однако
+не отчаивайтесь, потому что не все формы блокировки плохи! Использование блокирующих вызовов неизбежно, но вы должны
+работать над тем, чтобы убедиться, что вы не чрезмерно блокируете функции. Помните, что если вы блокируете слишком
+долго, то ваш бот зависнет, так как в этот момент он не остановил выполнение функции для выполнения других действий.
+
+Если ведение журнала включено, эта библиотека попытается предупредить вас о том, что происходит блокировка, с
+сообщением: `Heartbeat blocked for more than N seconds.` См. Раздел
+[Настройка Ведения Журнала](https://docs.disnake.dev/en/latest/logging.html#logging-setup) для получения
+подробной информации о включении ведения журнала.
+
+Распространенным источником слишком длительной блокировки является что-то вроде
+[`time.sleep`](https://docs.python.org/3/library/time.html#time.sleep). Не делай этого. Используйте
+[`asyncio.sleep`](https://docs.python.org/3/library/asyncio-task.html#asyncio.sleep) вместо этого.
+Аналогично этому примеру:
+
+```python
+# Плохо
+time.sleep(10)
+
+# Хорошо
+await asyncio.sleep(10)
+```
+
+Другим распространенным источником слишком длительной блокировки является использование HTTP-запросов с известным
+модулем [Requests: HTTP for Humans™](https://docs.python-requests.org/en/latest/). В то время как
+[Requests: HTTP for Humans™](https://docs.python-requests.org/en/latest/) - это удивительный модуль для
+неасинхронного программирования, он не является хорошим выбором для
+[`asyncio`](https://docs.python.org/3/library/asyncio.html#module-asyncio), потому что некоторые запросы могут
+блокировать цикл событий слишком долго. Вместо этого используйте библиотеку
+[`aiohttp`](https://docs.aiohttp.org/en/stable/index.html), которая уже установлена с disnake.
+
+Рассмотрим следующий пример:
+
+```python
+# Плохо
+r = requests.get("http://aws.random.cat/meow")
+if r.status_code == 200:
+    json = r.json()
+    await channel.send(json["file"])
+
+# Хорошо
+async with aiohttp.ClientSession() as session:
+    async with session.get("http://aws.random.cat/meow") as r:
+        if r.status == 200:
+            json = await r.json()
+            await channel.send(json["file"])
+```

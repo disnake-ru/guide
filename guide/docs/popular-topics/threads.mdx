@@ -1,0 +1,137 @@
+---
+description: Обширная статья о методах и событиях в ветках Discord.
+keywords: [disnake, bot, guide, tutorial, thread, python]
+---
+
+# Ветки
+
+Ветки - это объекты класса <DocsLink reference="disnake.abc.Messageable">Messageable</DocsLink>, и их можно
+рассматривать как подканалы внутри существующих каналов. Они позволяют организовать несколько тем в канале, временно
+выделив им отдельное пространство.
+
+## Методы, связанные с ветками
+
+### Создание и удаление веток
+
+Ветку можно создать с помощью метода <DocsLink reference="disnake.TextChannel.create_thread">create_thread()</DocsLink>
+в объектах <DocsLink reference="disnake.Message">Message</DocsLink>
+или <DocsLink reference="disnake.TextChannel">TextChannel</DocsLink>.
+
+```python title="threads.py"
+# Используя объект 'Message'
+message = await channel.fetch_message(1234567890)
+await message.create_thread(
+    name="Это сообщение будет действовать как начальное сообщение ветки.",
+    auto_archive_duration=60,
+)
+
+# Используя объект 'TextChannel'
+channel = bot.get_channel(...)
+await channel.create_thread(
+    name="Для этой ветки требуется указать начальное сообщение.",
+    auto_archive_duration=60,
+    message=message,
+)
+```
+
+Чтобы удалить ветку, вы можете использовать метод <DocsLink reference="disnake.Thread.delete">delete()</DocsLink> в
+объекте <DocsLink reference="disnake.Thread">Thread</DocsLink>.
+
+```python title="threads.py"
+thread = channel.get_thread(...)  # Вы также можете использовать bot.get_channel(...)
+
+await thread.delete()
+```
+
+### Присоединение и покидание веток
+
+Both joining and leaving a thread require you to have a <DocsLink reference="disnake.Thread">Thread</DocsLink> object,
+on which you can use the <DocsLink reference="disnake.Thread.join">join()</DocsLink> and <DocsLink reference="disnake.Thread.leave">leave()</DocsLink> methods for the respective action.
+
+```python title="threads.py"
+thread = channel.get_thread(...)  # Вы также можете использовать bot.get_channel(...)
+
+# Присоединение к ветке.
+await thread.join()
+
+# Покидание ветки.
+await thread.leave()
+```
+
+Здесь рекомендуется использовать блок `try-except` на случай, если акканут бота не сможет присоединиться к ветке; это
+может быть связано с отсутствием прав.
+
+### Архивирование, разархивирование и блокировка веток
+
+Архивирование ветки, по сути, делает его "доступным только для чтения" для не-модераторов - где они могут
+просматривать старые сообщения, но не отправлять сами сообщения. Заблокированные ветки могут быть разархивированы
+только пользователями, имеющими право `manage_threads` (Управление ветками).
+
+Ветки имеют **длительность автоархивирования** - период времени, по истечении которого ветка автоматически архивируется
+без настройки модератором. Эта длительность также может быть установлена аккаунтом бота при создании или редактировании
+ветки.
+
+```python title="threads.py"
+thread = channel.get_thread(...)
+
+await thread.edit(auto_archive_duration=60)
+```
+
+Настройка ветки для архивирования, разархивирования или блокировки может быть выполнена с помощью
+метода <DocsLink reference="disnake.Thread.edit">edit()</DocsLink> с помощью параметров `archived` и `locked`. Оба этих
+атрибута принимают логическое значение (`bool`).
+
+```python title="threads.py"
+thread = channel.get_thread(...)
+
+# Архивирование ветки
+await thread.edit(archived=True)  #  Установите на False, чтобы разархивировать ветку
+
+# Блокировка ветки
+await thread.edit(locked=True)
+```
+
+### Публичные и приватные ветки
+
+Публичные ветки доступны для всех участников, которые могут просматривать родительский канал ветки. Такие ветки могут
+быть созданы с помощью метода <DocsLink reference="disnake.TextChannel.create_thread">create_thread()</DocsLink>, как
+описано в [предыдущем разделе](#создание-и-удаление-веток).
+
+Приватные ветки - это те, которые доступны только модераторам и участникам, приглашенным создателем ветки. Приватную
+ветку можно создать, указав `type` в методе <DocsLink reference="disnake.TextChannel">метод create_thread()</DocsLink>
+как <DocsLink reference="disnake.ChannelType.private_thread">private_thread</DocsLink>.
+
+```python title="threads.py" {6}
+channel = bot.get_channel(...)
+
+await channel.create_thread(
+    name="Название ветки",
+    auto_archive_duration=60,
+    type=disnake.ChannelType.private_thread,
+)
+```
+
+:::note Примечание
+
+Приватная ветка быть создана только в объекте <DocsLink reference="disnake.TextChannel">TextChannel</DocsLink>. Тип,
+которого можно указать в методе <DocsLink reference="disnake.TextChannel.create_thread">create_thread()</DocsLink>
+может быть `public_thread`, `private_thread` или `news_thread`.
+
+:::
+
+## События веток
+
+Ветки добавляют некоторые новые события шлюза, которые перечислены ниже. Вы можете найти более подробную информацию об
+этим [в документации](https://docs.disnake.dev/en/latest/api.html#disnake.on_thread_join).
+
+-   <DocsLink reference="disnake.on_thread_join">on_thread_join</DocsLink>
+
+-   <DocsLink reference="disnake.on_thread_remove">on_thread_remove</DocsLink>
+
+-   <DocsLink reference="disnake.on_thread_member_join">on_thread_member_join</DocsLink>
+
+-   <DocsLink reference="disnake.on_thread_member_remove">on_thread_member_remove</DocsLink>
+
+-   <DocsLink reference="disnake.on_thread_delete">on_thread_delete</DocsLink>
+
+-   <DocsLink reference="disnake.on_thread_update">on_thread_update</DocsLink>

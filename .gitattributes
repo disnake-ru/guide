@@ -1,0 +1,19 @@
+# Normalize line endings to LF
+* text=auto
+
+.git* text
+*.json text
+*.env text linguist-language=python
+*.yml text
+*.yaml text
+*.css text
+*.scss text
+*.js text
+*.jsx text
+*.ts text
+*.tsx text
+*.py text
+*.mdx text linguist-detectable
+
+*.png binary
+*.{jpeg,jpg} binary
