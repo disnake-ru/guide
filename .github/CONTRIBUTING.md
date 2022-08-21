@@ -1,17 +1,17 @@
-# Contributing
+# Вклад
 
-First off, thanks for taking the time to contribute. :+1:
+Во-первых, спасибо, что нашли время внести свой вклад. :+1:
 
-This guide uses [`Docusaurus 2`](https://docusaurus.io/) for building the guide itself, and [`pre-commit`](https://pre-commit.com/) for various formatting/cleanup tasks - running content through prettier, formatting Python codeblocks and samples, etc.
+В этом руководстве используется [`Docusaurus 2`](https://docusaurus.io/) для создания самого руководства и [`pre-commit`](https://pre-commit.com/) для различных задач форматирования/очистки - запуска содержимого через prettier, форматирования блоков кода Python и образцов и т.д.
 
-To get started with contributing to this guide, follow these steps:
+Чтобы начать вносить свой вклад в это руководство, выполните следующие действия:
 
-1. `cd guide` as this is our docusaurus directory.
-2. Install dependencies: `npm install`.
-    - Note: Node version 16.14 or higher is required for Docusaurus 2.
-3. Build using `Docusaurus`.
-    - To build the documentation once, use `npm run build` and open `build/index.html` in your browser
-    - Alternatively, if you want to see your changes to the content in real-time, use `npm run start` to start an autoreloading server on localhost.
-4. Run `pre-commit`.
-    - If you want to install the pre-commit hooks to automatically run before every commit, use `pre-commit install`
-    - Otherwise, use `pre-commit run --all-files` to run all checks once.
+1. `cd guide` поскольку это наш каталог docusaurus.
+2. Установите зависимости: `npm install`.
+    - Примечание: Используйте Node версии 16.14 или выше.
+3. Сборка с импользованием `Docusaurus`.
+    - Чтобы создать документацию один раз, используйте `npm run build` и откройте `build/index.html` в вашем браузере.
+    - В качестве альтернативы, если вы хотите видеть свои изменения в содержимом в режиме реального времени, используйте `npm run start`, чтобы запустить сервер на localhost.
+4. Запустите `pre-commit`.
+    - Если вы хотите установить хуки предварительной фиксации для автоматического запуска перед каждой фиксацией, используйте `pre-commit install`.
+    - В противном случае используйте `pre-commit run --all-files`, чтобы выполнить все проверки один раз.
