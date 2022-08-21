@@ -4,7 +4,7 @@
 
 <p align="center">
     <a href="https://discord.gg/PZZ9P7yBSN"><img src="https://img.shields.io/discord/983119421214187520?style=for-the-badge&color=5865f2&logo=discord&logoColor=ffffff&label=discord" alt="Discord server invite" /></a>
-    <a href="https://github.com/disnake-ru/disnake/commits"><img src="https://img.shields.io/github/commit-activity/w/disnake-ru/guide.svg?style=for-the-badge" alt="Commit activity" /></a>
+    <a href="https://github.com/disnake-ru/guide/commits"><img src="https://img.shields.io/github/commit-activity/w/disnake/guide.svg?style=for-the-badge" alt="Commit activity" /></a>
 </p>
 
 Добро пожаловать! Цель этого руководства - облегчить ваш путь с `disnake`, независимо от того, являетесь ли вы опытным
