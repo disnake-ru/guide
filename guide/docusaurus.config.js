@@ -2,7 +2,7 @@
 
 module.exports = {
 	title: 'Disnake Guide',
-	url: 'https://test.guide.disnake.dellyis.me/',
+	url: 'https://ru.guide.disnake.dev/',
 	favicon: 'public/favicon.ico',
 
 	organizationName: 'disnake-ru',
