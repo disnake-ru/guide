@@ -2,46 +2,46 @@
 hide_sidebar: true
 ---
 
-# Contributing
+# Вклад
 
-First off, thanks for taking the time to contribute. This guide uses [Docusaurus](https://docusaurus.io/) for building the guide itself, and [`pre-commit`](https://pre-commit.com/) for various formatting/cleanup tasks, like formatting Python codeblocks. Make sure to install their respective CLIs, as they're utilized by our `npm` scripts.
+Во-первых, спасибо, что нашли время внести свой вклад. В этом руководстве используется [Docusaurus](https://docusaurus.io/) для создания самого руководства и [`pre-commit`](https://pre-commit.com/) для различных задач форматирования/очистки, таких как форматирование блоков кода Python. Обязательно установите их соответствующие CLI, так как они используются нашими скриптами `npm`.
 
-## Prerequisites
+## Необходимые компоненты
 
--   node v16 or newer
+-   node версии 16.14 или новее
 -   pre-commit
 
-## Local development
+## Локальная разработка
 
-Clone the repo to your desired folder, and `cd` into it.
+Клонируйте репозиторий в нужную вам папку и перейдите в него с помощь `cd`.
 
 ```
-git clone https://github.com/DisnakeDev/guide.git
+git clone https://github.com/disnake-ru/guide.git
 cd guide/guide
 ```
 
-Further, install the dependencies using `npm install`.
+Далее установите зависимости с помощью `npm install`.
 
-### Starting the server
+### Запуск сервера
 
-To build and serve a preview of your site locally, run the following commands while in root:
+Чтобы создать и предоставить предварительный просмотр вашего сайта локально, выполните следующие команды, находясь в корневом каталоге:
 
 ```
 cd guide
 npm run start
 ```
 
-This will serve the site on `http://localhost:3000/`. To specify the port of the devserver, you can use the `--port` option.
+Это позволит обслуживать сайт на `http://localhost:3000/`. Чтобы указать порт сервера разработки, вы можете использовать опцию `--port`.
 
 ```
 npm run start -- --port=8000
 ```
 
-## Linting
+## Линтинг
 
-Linting your edits/additions is critical to ensure the consistency of the material with the rest of the guide.
+Внесение изменений/дополнений имеет решающее значение для обеспечения согласованности материала с остальной частью руководства.
 
-## Using components
+## Использование компонентов
 
 ### `<DocsLink />`
 
@@ -49,4 +49,4 @@ Linting your edits/additions is critical to ensure the consistency of the materi
 
 ### `<WorkInProgress />`
 
-## Commit convention
+## Конвенция о коммитах
