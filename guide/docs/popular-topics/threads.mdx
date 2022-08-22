@@ -45,7 +45,7 @@ await thread.delete()
 
 ### Присоединение и покидание веток
 
-Присоединение к ветке и уход с неё требует у вас наличия объекта <DocsLink reference="disnake.Thread">Thread</DocsLink>,
+Присоединение к ветке и выход с неё требует у вас наличия объекта <DocsLink reference="disnake.Thread">Thread</DocsLink>,
 с помощью которого Вы можете использовать методы <DocsLink reference="disnake.Thread.join">join()</DocsLink> и <DocsLink reference="disnake.Thread.leave">leave()</DocsLink> для соответствующих действий.
 
 ```python title="threads.py"
@@ -98,7 +98,7 @@ await thread.edit(locked=True)
 описано в [предыдущем разделе](#создание-и-удаление-веток).
 
 Приватные ветки - это те, которые доступны только модераторам и участникам, приглашенным создателем ветки. Приватную
-ветку можно создать, указав `type` в методе <DocsLink reference="disnake.TextChannel">метод create_thread()</DocsLink>
+ветку можно создать, указав `type` в методе <DocsLink reference="disnake.TextChannel">create_thread()</DocsLink>
 как <DocsLink reference="disnake.ChannelType.private_thread">private_thread</DocsLink>.
 
 ```python title="threads.py" {6}
@@ -113,7 +113,7 @@ await channel.create_thread(
 
 :::note Примечание
 
-Приватная ветка быть создана только в объекте <DocsLink reference="disnake.TextChannel">TextChannel</DocsLink>. Тип,
+Приватная ветка может быть создана только в объекте <DocsLink reference="disnake.TextChannel">TextChannel</DocsLink>. Тип,
 которого можно указать в методе <DocsLink reference="disnake.TextChannel.create_thread">create_thread()</DocsLink>
 может быть `public_thread`, `private_thread` или `news_thread`.
 
@@ -122,7 +122,7 @@ await channel.create_thread(
 ## События веток
 
 Ветки добавляют некоторые новые события шлюза, которые перечислены ниже. Вы можете найти более подробную информацию об
-этим [в документации](https://docs.disnake.dev/en/latest/api.html#disnake.on_thread_join).
+этом [в документации](https://docs.disnake.dev/en/latest/api.html#disnake.on_thread_join).
 
 -   <DocsLink reference="disnake.on_thread_join">on_thread_join</DocsLink>
 
