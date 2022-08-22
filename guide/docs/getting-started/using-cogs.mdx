@@ -18,8 +18,8 @@ keywords: [disnake, bot, guide, tutorial, cogs, extensions, python]
 
 ## Создание файлов
 
-What we code here will extend on the code from [**Initial Files**](./initial-files.mdx), and thus we assume that there
-already exists a `main.py` file in your directory which initiates a `commands.Bot()` instance.
+Код приведённый ниже был описан в [**Initial Files**](./initial-files.mdx), и, поэтому, мы предполагаем,
+что уже существует файл `main.py` в вашем каталоге, который инициирует экземпляр `commands.Bot()`.
 
 ```python title="main.py"
 import disnake
@@ -96,7 +96,7 @@ class PingCommand(commands.Cog):
 
 ### Добавление функции `setup`
 
-Последнее, что нужно добавить a этот файл, - это функция `setup`, чтобы disnake мог загружать ког, когда он будет
+Последнее, что нужно добавить в этот файл, - это функция `setup`, чтобы disnake мог загружать ког, когда он будет
 добавлен в `main.py`.
 
 ```python title="ping.py" {15,16}
@@ -150,7 +150,7 @@ bot.load_extensions('cogs')
 
 :::
 
-И это завершает использование когов в `disnake`! Теперь вы можете создать несколько кого для группировки и организации
+И это завершает использование когов в `disnake`! Теперь вы можете создать несколько когов для группировки и организации
 ваших команд/событий, а также загружать/выгружать их через ваш основной файл. Более подробную информацию о специальных
 методах когов можно найти [в документации](https://docs.disnake.dev/en/latest/ext/commands/cogs.html).
 
