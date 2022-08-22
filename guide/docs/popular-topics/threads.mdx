@@ -45,8 +45,8 @@ await thread.delete()
 
 ### Присоединение и покидание веток
 
-Both joining and leaving a thread require you to have a <DocsLink reference="disnake.Thread">Thread</DocsLink> object,
-on which you can use the <DocsLink reference="disnake.Thread.join">join()</DocsLink> and <DocsLink reference="disnake.Thread.leave">leave()</DocsLink> methods for the respective action.
+Присоединение к ветке и уход с неё требует у вас наличия объекта <DocsLink reference="disnake.Thread">Thread</DocsLink>,
+с помощью которого Вы можете использовать методы <DocsLink reference="disnake.Thread.join">join()</DocsLink> и <DocsLink reference="disnake.Thread.leave">leave()</DocsLink> для соответствующих действий.
 
 ```python title="threads.py"
 thread = channel.get_thread(...)  # Вы также можете использовать bot.get_channel(...)
