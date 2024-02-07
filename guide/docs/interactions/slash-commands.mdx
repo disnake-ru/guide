@@ -24,7 +24,7 @@ description: В этом разделе подробно рассказано о
 ```python
 @bot.slash_command(
     name="ping",
-    description="Возращает задержку бота",
+    description="Возвращает задержку бота",
 )
 async def ping(inter: disnake.ApplicationCommandInteraction):
     ...
@@ -50,7 +50,7 @@ async def ping(inter: disnake.ApplicationCommandInteraction):
 class Meta(commands.Cog):
     @commands.slash_command(
         name="ping",
-        description="Возращает задержку бота",
+        description="Возвращает задержку бота",
     )
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
         ...
@@ -196,7 +196,7 @@ async def defer(inter: ApplicationCommandInteraction):
 того, когда можно использовать последующее наблюдение:
 
 -   на взаимодействие должен быть дан ответ в течение первых 3 секунд (см. [Отправка ответа](#отправка-ответа)).
--   срок действия взаимодействия не должен быть истек. Проверка того, истек ли срок действия взаимодействия, может
+-   срок действия взаимодействия не должен быть истекшим. Проверка того, истек ли срок действия взаимодействия, может
     быть выполнена с помощью <DocsLink reference="disnake.ApplicationCommandInteraction.is_expired">ApplicationCommandInteraction.is_expired</DocsLink>.
 
 По своей сути, последующие действия - это просто экземпляр <DocsLink reference="disnake.Webhook">Webhook</DocsLink>.
